@@ -44,6 +44,17 @@ void drawRect(int row, int col, int height, int width, u16 color)
 	}
 }
 
+void OverLockdrawRect(int row, int col, int height, int width, u16 color)
+{
+	for(int r=0; r<height; r++)
+	{
+		for(int c=0; c<width; c++)
+		{
+			setPixel(row+r, col+c, color);
+		}
+	}
+}
+
 void drawCircle(int crow, int ccol, int radius, u16 color) {
 	for(int i = -radius; i <= radius; i++) {
 		for (int j = -radius; j <= radius; j++) {

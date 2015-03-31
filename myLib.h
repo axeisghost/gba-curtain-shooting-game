@@ -25,7 +25,7 @@ typedef unsigned short u16;
 #define RIGHT_BOUND 240
 #define JIIDAN_SPEED 9
 #define JIIDAN_SIZE 6
-#define BOSS_MAX_HP 500
+#define BOSS_MAX_HP 30
 #define MAX_LIFE 5
 #define OFFSET(r, c, numcols) ((r)*(numcols) + (c))
 
@@ -73,6 +73,8 @@ typedef struct {
 	int rs;
 	int cs;
 	int life;
+	int flashtime;
+	bool flash;
 	int size;
 } REIMU;
 
@@ -88,4 +90,5 @@ bool checkOnTarget(DANMAKU* cur);
 void danmakuLifecycle(DANMAKU* cur, REIMU player1);
 void drawCircle(int crow, int ccol, int radius, u16 color);
 bool reimuHitCheck(REIMU player1, DANMAKU* cur);
+void OverLockdrawRect(int row, int col, int height, int width, u16 color);
 
