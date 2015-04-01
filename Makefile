@@ -7,16 +7,16 @@
 # The name of your desired GBA game
 # This should be a just a name i.e MyFirstGBAGame
 # No SPACES AFTER THE NAME.
-PROGNAME = lab20
+PROGNAME = TouhouYoiimu
 
 # The object files you want to compile into your program
 # This should be a space (SPACE!) separated list of .o files
-OFILES = main.o myLib.o font.o jiidanLink.o
+OFILES = main.o myLib.o font.o jiidanLink.o gameStart.o gameOver.o gameWin.o yuyuko.o reimu.o
 
 # The header files you have created.
 # This is necessary to determine when to recompile for files.
 # This should be a space (SPACE!) separated list of .h files
-HFILES = myLib.h font.h jiidanLink.h
+HFILES = myLib.h font.h jiidanLink.h gameStart.h gameOver.h gameWin.h yuyuko.h reimu.h
 
 ################################################################################
 # These are various settings used to make the GBA toolchain work

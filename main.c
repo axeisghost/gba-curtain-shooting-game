@@ -1,12 +1,24 @@
 #include "myLib.h"
 #include "jiidanLink.h"
+#include "gameStart.h"
+#include "gameOver.h"
+#include "gameWin.h"
+#include "yuyuko.h"
+#include "reimu.h"
 
 
 int main()
 {
 	bool game = false;
+	bool gameend = false;
 	REG_DISPCTL = MODE3 | BG2_ENABLE;
+	u16 bk = BLACK;
+	u16 wh = WHITE;
 	while (1) {
+		waitForVblank();
+		DMA[3].src = gameStart;
+		DMA[3].dst = videoBuffer;
+		DMA[3].cnt = 38400|DMA_ON;
 		while (!game) {
 			if (KEY_DOWN_NOW(BUTTON_START)) {
 				game = true;
@@ -28,8 +40,8 @@ int main()
 		for (i = 0; i < DIFFICULTY; i++) {
 			danma[i].launchrow = 30 * (i + 1);
 			danma[i].launchcol = 60;
-			danma[i].row = 80;
-			danma[i].col = 0;
+			danma[i].row = 70;
+			danma[i].col = 19;
 			danma[i].rs = 0;
 			danma[i].cs = 3;
 			danma[i].size = 5;
@@ -43,8 +55,8 @@ int main()
 		REIMU player1;
 		player1.row = 80;
 		player1.col = 220;
-		player1.rs = 5;
-		player1.cs = 5;
+		player1.rs = 4;
+		player1.cs = 4;
 		player1.life = MAX_LIFE;
 		player1.size = 4;
 		player1.flash = false;
@@ -62,31 +74,23 @@ int main()
 				curr = next(curr);
 			}
 			if (KEY_DOWN_NOW(BUTTON_UP)) {
-				if (player1.row > (player1.size + UPPER_BOUND)) {
+				if (player1.row > (UPPER_BOUND + player1.size)) {
 					player1.row = player1.row - player1.rs;
-				} else if (player1.row < (player1.size + player1.rs + UPPER_BOUND)) {
-					player1.row = player1.size + UPPER_BOUND;
 				}
 			}
 			if (KEY_DOWN_NOW(BUTTON_DOWN)) {
-				if (player1.row < (LOWER_BOUND - (player1.size))) {
+				if (player1.row < (LOWER_BOUND - player1.size)) {
 					player1.row = player1.row + player1.rs;
-				} else if (player1.row - (LOWER_BOUND - (player1.size)) <= player1.rs) {
-					player1.row = LOWER_BOUND - (player1.size);
 				}
 			}
 			if (KEY_DOWN_NOW(BUTTON_RIGHT)) {
-				if (player1.col < (RIGHT_BOUND - (player1.size))) {
+				if (player1.col < (RIGHT_BOUND- player1.size)) {
 					player1.col = player1.col + player1.cs;
-				} else if (player1.row - (RIGHT_BOUND - (player1.size)) <= player1.cs) {
-					player1.col = RIGHT_BOUND - (player1.size);
 				}
 			}
 			if (KEY_DOWN_NOW(BUTTON_LEFT)) {
 				if (player1.col > (player1.size + LEFT_BOUND)) {
 					player1.col = player1.col - player1.cs;
-				} else if (player1.col < (player1.size + player1.cs + LEFT_BOUND)) {
-					player1.col = player1.size + LEFT_BOUND;
 				}
 			}
 			if (KEY_DOWN_NOW(BUTTON_A)) {
@@ -109,7 +113,7 @@ int main()
 				for (i = 0; i < DIFFICULTY; i++) {
 					cur = danma + i;
 					if (reimuHitCheck(player1, cur)) {
-						drawRect(UPPER_BOUND, 0, 7, 7, cur->color);
+						//drawRect(UPPER_BOUND, 0, 7, 7, cur->color);
 						player1.life--;
 						player1.flash = true;
 					}
@@ -128,78 +132,75 @@ int main()
 			}
 			curr = head;
 			while (curr) {
-				if (curr->col <= player1.col) {
-					drawRect(curr->row1,curr->col,1,JIIDAN_SIZE,WHITE);
-					drawRect(curr->row1,curr->col + JIIDAN_SPEED,1,JIIDAN_SIZE,BLACK);
+				if (curr->col < player1.col) {
+					// drawRect(curr->row1,curr->col,1,JIIDAN_SIZE,WHITE);
+					// drawRect(curr->row1,curr->col + JIIDAN_SPEED,1,JIIDAN_SIZE,BLACK);
+					DMA[3].src = &wh;
+					DMA[3].dst = videoBuffer + OFFSET(curr->row1, curr->col, 240);
+					DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
+					DMA[3].src = &bk;
+					DMA[3].dst = videoBuffer + OFFSET(curr->row1, curr->col + JIIDAN_SPEED, 240);
+					DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
 				}
 				curr = next(curr);
 			}
 			while (head && (head->col < 0)) {
-				if ((head->row1 > 60) && (head->row1 < 100)) {
+				if ((head->row1 > 50) && (head->row1 < 100)) {
 					// drawCircle(head->row1, (int)(rand() % 20), 15 + rand() % 10, RED);
-					drawRect(head->row1,head->col,1,JIIDAN_SIZE,BLACK);
 					boss_HP--;
 				}
-				drawRect(head->row1,head->col,1,JIIDAN_SIZE,BLACK);
+				DMA[3].src = &bk;
+				DMA[3].dst = videoBuffer + OFFSET(head->row1, head->col, 240);
+				DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
 				head = nextAndDelete(head);
 			}
-			drawCircle(oldplayer1.row, oldplayer1.col, oldplayer1.size, BLACK);
-			if (player1.flash) {
-				if (player1.flashtime > 0) {
-					if ((player1.flashtime % 10) > 5) {
-						drawCircle(player1.row, player1.col, player1.size, WHITE);
-					} else {
-						drawCircle(player1.row, player1.col, player1.size, BLACK);
-					}
-					player1.flashtime--;
-				} else {
-					player1.flash = false;
-					player1.flashtime = 60;
-				}
-			}
-			drawCircle(player1.row, player1.col, player1.size, WHITE);
+			//waitForVblank();
 			drawString(3, 10, str1, BLACK);
 			sprintf(str1, "HP:%d", boss_HP);
 			drawString(3, 10, str1, WHITE);
 			drawString(3, 200, str2, BLACK);
 			sprintf(str2, "LIFE:%d", player1.life);
 			drawString(3, 200, str2, WHITE);
+			if (player1.flash) {
+				if (player1.flashtime > 0) {
+					player1.flashtime--;
+				} else {
+					player1.flash = false;
+					player1.flashtime = 60;
+				}
+			}
+			// fixedDrawImage3(oldplayer1.row - 35, oldplayer1.col - 17, 34, 50,&bk);
+			// drawImage3(player1.row - 35, player1.col - 17, 34, 50,reimu);
+			drawCircle(oldplayer1.row, oldplayer1.col, oldplayer1.size, BLACK);
+			drawCircle(player1.row, player1.col, player1.size, WHITE);
+			drawImage3(50, 0, 38, 50, yuyuko);
 			oldplayer1 = player1;
 			//oldboss_HP = boss_HP;
 			//-------------------------------------------------------------------------------------------
 			if (player1.life < 0) {
 				game = false;
 				waitForVblank();
-				OverLockdrawRect(0, 0, 160, 240, BLACK);
-				char str3[9];
-				str3[0] = 'G';
-				str3[1] = 'a';
-				str3[2] = 'm';
-				str3[3] = 'e';
-				str3[4] = ' ';
-				str3[5] = 'O';
-				str3[6] = 'v';
-				str3[7] = 'e';
-				str3[8] = 'r';
-				drawString(80, 100, str3, WHITE);
+				DMA[3].src = gameOver;
+				DMA[3].dst = videoBuffer;
+				DMA[3].cnt = 38400|DMA_ON;
+				gameend = true;
 			}
 			if (boss_HP < 0) {
 				game = false;
 				waitForVblank();
-				OverLockdrawRect(0, 0, 160, 240, BLACK);
-				char str4[7];
-				str4[0] = 'Y';
-				str4[1] = 'o';
-				str4[2] = 'u';
-				str4[3] = ' ';
-				str4[4] = 'W';
-				str4[5] = 'i';
-				str4[6] = 'n';
-				drawString(80, 100, str4, WHITE);
+				DMA[3].src = gameWin;
+				DMA[3].dst = videoBuffer;
+				DMA[3].cnt = 38400|DMA_ON;
+				gameend = true;
 			}
 			if (KEY_DOWN_NOW(BUTTON_SELECT)) {
 				game = false;
 				OverLockdrawRect(0, 0, 160, 240, BLACK);
+			}
+		}
+		while (gameend) {
+			if (KEY_DOWN_NOW(BUTTON_B)) {
+				gameend = false;
 			}
 		}
 	}

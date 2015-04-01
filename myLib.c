@@ -203,8 +203,8 @@ bool checkOnTarget(DANMAKU* cur) {
 
 void danmakuLifecycle(DANMAKU* cur, REIMU player1) {
 	if (boundsCheck(cur)) {
-		cur->row = 80;
-		cur->col = 0;
+		cur->row = 70;
+		cur->col = 19;
 		cur->launch = false;
 		cur->onfire = false;
 		cur->targetrow = cur->launchrow;
@@ -255,4 +255,22 @@ void WaitForVblank()
 {
 	while(SCANLINE_COUNTER > 160);
 	while(SCANLINE_COUNTER < 160);
+}
+
+void drawImage3(int r, int c, int width, int height, const u16* image)
+{
+	for (int ii = 0; ii < height; ii++) {
+		DMA[3].src = image + OFFSET(ii, 0, width);
+		DMA[3].dst = videoBuffer + OFFSET(r + ii, c, 240);
+		DMA[3].cnt = width | DMA_ON;
+	}	
+}
+
+void fixedDrawImage3(int r, int c, int width, int height, const u16* pcolor)
+{
+	for (int ii = 0; ii < height; ii++) {
+		DMA[3].src = pcolor;
+		DMA[3].dst = videoBuffer + OFFSET(r + ii, c, 240);
+		DMA[3].cnt = width | DMA_ON | DMA_SOURCE_FIXED;
+	}	
 }
