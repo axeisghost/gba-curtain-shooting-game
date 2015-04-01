@@ -1,14 +1,23 @@
 ------------------Counterfeit Cherry Blossom--------------------
-		　　東方妖偽夢									
-Use Up, Down, Right, Left to control the white ball to dodge the balls launched by yuyuko!
+		　　                  東方妖偽夢									
+Use Up, Down, Right, Left to control the white ball to dodge the 
+bullets launched by yuyuko!
 
 Press A to shoot
+
+When player get hit by the bullet, player will be granted a
+invincible state in a short period. The ball will be in cyan 
+during the period.
 
 Press Select to return to Start screen whenever in the game
 
 
 Programing detail:
-For the bullets the player shooted, a linked list was used to connect all the bullets. Although it still has to draw all the bullets by going over all the bullets but when it removes the bullets that fly out of the screen, it will only check the bullets near the target and side of screen.
+For the bullets the player shooted, a linked list was used to 
+connect all the bullets. Although it still has to draw all the 
+bullets by going over all the bullets but when it removes the 
+bullets that fly out of the screen, it will only check the 
+bullets near the target and side of screen.
 
 
        

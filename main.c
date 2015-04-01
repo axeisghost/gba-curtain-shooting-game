@@ -120,8 +120,24 @@ int main()
 				}
 			}
 			sprintf(str1, "HP:%d", boss_HP);
+			if (player1.flash) {
+				if (player1.flashtime > 0) {
+					player1.flashtime--;
+				} else {
+					player1.flash = false;
+					player1.flashtime = 60;
+				}
+			}
 			//---------------------------------------------------------------------------------------------------
 			waitForVblank();
+			// fixedDrawImage3(oldplayer1.row - 35, oldplayer1.col - 17, 34, 50,&bk);
+			// drawImage3(player1.row - 35, player1.col - 17, 34, 50,reimu);
+			drawCircle(oldplayer1.row, oldplayer1.col, oldplayer1.size, BLACK);
+			if (player1.flash) {
+				drawCircle(player1.row, player1.col, player1.size, CYAN);
+			} else {
+				drawCircle(player1.row, player1.col, player1.size, WHITE);
+			}
 			for (i = 0; i < DIFFICULTY; i++) {
 				drawCircle(olddanma[i].row, olddanma[i].col, olddanma[i].size, BLACK);
 			}
@@ -132,47 +148,34 @@ int main()
 			}
 			curr = head;
 			while (curr) {
-				if (curr->col < player1.col) {
-					// drawRect(curr->row1,curr->col,1,JIIDAN_SIZE,WHITE);
-					// drawRect(curr->row1,curr->col + JIIDAN_SPEED,1,JIIDAN_SIZE,BLACK);
-					DMA[3].src = &wh;
-					DMA[3].dst = videoBuffer + OFFSET(curr->row1, curr->col, 240);
-					DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
-					DMA[3].src = &bk;
-					DMA[3].dst = videoBuffer + OFFSET(curr->row1, curr->col + JIIDAN_SPEED, 240);
-					DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
-				}
-				curr = next(curr);
-			}
-			while (head && (head->col < 0)) {
-				if ((head->row1 > 50) && (head->row1 < 100)) {
-					// drawCircle(head->row1, (int)(rand() % 20), 15 + rand() % 10, RED);
-					boss_HP--;
-				}
 				DMA[3].src = &bk;
-				DMA[3].dst = videoBuffer + OFFSET(head->row1, head->col, 240);
+				DMA[3].dst = videoBuffer + OFFSET(curr->row1, curr->col + JIIDAN_SPEED, 240);
 				DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
-				head = nextAndDelete(head);
+				if (curr->col <= 0) {
+					if ((curr->row1 > 50) && (curr->row1 < 100)) {
+						//drawCircle(head->row1, (int)(rand() % 38), 5 + rand() % 10, RED);
+						boss_HP--;
+					}
+					DMA[3].src = &bk;
+					DMA[3].dst = videoBuffer + OFFSET(head->row1, head->col, 240);
+					DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
+					head = nextAndDelete(head);
+					curr = head;
+				} else {
+					if (curr->col < player1.col) {
+						DMA[3].src = &wh;
+						DMA[3].dst = videoBuffer + OFFSET(curr->row1, curr->col, 240);
+						DMA[3].cnt = JIIDAN_SIZE|DMA_ON|DMA_SOURCE_FIXED;
+					}
+					curr = next(curr);
+				}
 			}
-			//waitForVblank();
 			drawString(3, 10, str1, BLACK);
 			sprintf(str1, "HP:%d", boss_HP);
 			drawString(3, 10, str1, WHITE);
 			drawString(3, 200, str2, BLACK);
 			sprintf(str2, "LIFE:%d", player1.life);
 			drawString(3, 200, str2, WHITE);
-			if (player1.flash) {
-				if (player1.flashtime > 0) {
-					player1.flashtime--;
-				} else {
-					player1.flash = false;
-					player1.flashtime = 60;
-				}
-			}
-			// fixedDrawImage3(oldplayer1.row - 35, oldplayer1.col - 17, 34, 50,&bk);
-			// drawImage3(player1.row - 35, player1.col - 17, 34, 50,reimu);
-			drawCircle(oldplayer1.row, oldplayer1.col, oldplayer1.size, BLACK);
-			drawCircle(player1.row, player1.col, player1.size, WHITE);
 			drawImage3(50, 0, 38, 50, yuyuko);
 			oldplayer1 = player1;
 			//oldboss_HP = boss_HP;

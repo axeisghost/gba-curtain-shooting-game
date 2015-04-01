@@ -27,7 +27,7 @@ typedef unsigned int u32;
 #define JIIDAN_SPEED 36
 #define JIIDAN_SIZE 20
 #define BOSS_MAX_HP 300
-#define MAX_LIFE 5
+#define MAX_LIFE 3
 #define OFFSET(r, c, numcols) ((r)*(numcols) + (c))
 
 // Buttons
@@ -45,7 +45,7 @@ typedef unsigned int u32;
 
 #define KEY_DOWN_NOW(key)  (~(BUTTONS) & key)
 #define BUTTONS *(volatile unsigned int *)0x4000130
-#define DIFFICULTY 5
+#define DIFFICULTY 4
 
 
 extern unsigned short *videoBuffer;
